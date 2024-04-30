@@ -27,7 +27,7 @@ def completion(messages: list[BaseMessage]):
     for chunk in chunks:
         if chunk.content == "":
             continue
-        yield f"event: message\ndata: {chunk.content}\nid: {count}\n\n"
+        yield f"event: add\ndata: {chunk.content}\nid: {count}\n\n"
         count += 1
 
     yield f"event: end\nid: {count}\n\n"
