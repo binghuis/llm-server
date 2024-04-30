@@ -30,7 +30,7 @@ def completion(messages: list[BaseMessage]):
         yield f"event: message\ndata: {chunk.content}\nid: {count}\n\n"
         count += 1
 
-    yield f"event: end\ndata: \nid: {count}\n\n"
+    yield f"event: end\nid: {count}\n\n"
 
 
 messages = [
@@ -40,3 +40,8 @@ messages = [
 
 for chunk in completion(messages):
     print(chunk)
+
+
+# application/x-ndjson application/stream+json text/event-stream
+# https://github.com/spring-projects/spring-framework/issues/21283
+# https://stackoverflow.com/questions/52098863/whats-the-difference-between-text-event-stream-and-application-streamjson
