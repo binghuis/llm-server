@@ -1,43 +1,49 @@
 import { useRef, useState } from "react";
 
 type useEventSourceOpts = {
-  onFinished?: () => void;
+  onEnd?: () => void;
+  map?: Record<"messsage" | "end", string>;
 } & EventSourceInit;
 
 export default function useEventSource(url: string, opts?: useEventSourceOpts) {
   const refES = useRef<EventSource>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
+  const [data, setData] = useState<any[]>([]);
 
   function open() {
     if (refES.current) {
-      refES.current.close();
+      close();
     }
+
     refES.current = new EventSource(url, {
       withCredentials: opts?.withCredentials,
     });
+
     refES.current.onopen = (event) => {
+      setData([]);
       setLoading(true);
     };
 
-    refES.current.onmessage = (event) => {
-      console.log(event);
-    };
+    if (!opts?.map?.messsage || opts?.map?.messsage === "message") {
+      refES.current.onmessage = (event) => {
+        setData((prev) => [...prev, event.data]);
+      };
+    } else {
+      refES.current.addEventListener(opts.map.messsage, (event) => {
+        setData((prev) => [...prev, event.data]);
+      });
+    }
+
+    refES.current.addEventListener(opts?.map?.end ?? "end", (event) => {
+      opts?.onEnd?.();
+      setLoading(false);
+    });
 
     refES.current.onerror = (event) => {
       setLoading(false);
       setError(new Error(event.type));
-      console.log("error", event);
     };
-
-    refES.current.addEventListener("end", (event) => {
-      opts?.onFinished?.();
-      close();
-    });
-
-    refES.current.addEventListener("add", (event) => {
-      console.log("add", JSON.parse(event.data));
-    });
   }
 
   function close() {
@@ -45,5 +51,5 @@ export default function useEventSource(url: string, opts?: useEventSourceOpts) {
     setLoading(false);
   }
 
-  return { open, close, loading, error };
+  return { open, close, data, loading, error };
 }
