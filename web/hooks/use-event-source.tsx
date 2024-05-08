@@ -2,8 +2,12 @@ import { useRef, useState } from "react";
 
 type useEventSourceOpts = {
   onEnd?: () => void;
-  map?: Record<"messsage" | "end", string>;
-  formater?: (data: any) => any;
+  map?: {
+    messsage?: string;
+    end?: string;
+  };
+  print?: boolean;
+  parse?: boolean;
 } & EventSourceInit;
 
 export default function useEventSource<Data>(
@@ -12,8 +16,9 @@ export default function useEventSource<Data>(
 ) {
   const refES = useRef<EventSource>();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error>();
   const [data, setData] = useState<Data[]>([]);
+
+  const { print = true } = opts ?? {};
 
   function open() {
     if (refES.current) {
@@ -32,21 +37,19 @@ export default function useEventSource<Data>(
     refES.current.addEventListener(
       opts?.map?.messsage ?? "message",
       (event) => {
-        setData((prev) => [
-          ...prev,
-          opts?.formater ? opts.formater(event.data) : event.data,
-        ]);
+        const data = opts?.parse ? JSON.parse(event.data) : event.data;
+        print && console.log(data);
+        setData((prev) => [...prev, data]);
       }
     );
 
     refES.current.addEventListener(opts?.map?.end ?? "end", (event) => {
       opts?.onEnd?.();
-      setLoading(false);
+      close();
     });
 
     refES.current.onerror = (event) => {
-      setLoading(false);
-      setError(new Error(event.type));
+      close();
     };
   }
 
@@ -55,5 +58,5 @@ export default function useEventSource<Data>(
     setLoading(false);
   }
 
-  return { open, close, data, loading, error };
+  return { open, close, data, loading };
 }

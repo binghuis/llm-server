@@ -1,23 +1,27 @@
 "use client";
 
 import useEventSource from "@/hooks/use-event-source";
-import { useEffect, useState } from "react";
 
 export default function ChatBox() {
-  const { open } = useEventSource(
-    "http://127.0.0.1:8000/api/sse/es?prompt=你好"
+  const { open, data } = useEventSource(
+    "http://127.0.0.1:8000/api/sse/es?prompt=你好",
+    {
+      map: {
+        messsage: "add",
+      },
+      parse: true,
+    }
   );
 
-  useEffect(() => {}, []);
   return (
     <div>
-      <input type="text" />
+      {data.join("")}
       <button
         onClick={() => {
           open();
         }}
       >
-        确认
+        嗨！
       </button>
     </div>
   );
