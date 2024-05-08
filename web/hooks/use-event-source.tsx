@@ -3,13 +3,17 @@ import { useRef, useState } from "react";
 type useEventSourceOpts = {
   onEnd?: () => void;
   map?: Record<"messsage" | "end", string>;
+  formater?: (data: any) => any;
 } & EventSourceInit;
 
-export default function useEventSource(url: string, opts?: useEventSourceOpts) {
+export default function useEventSource<Data>(
+  url: string,
+  opts?: useEventSourceOpts
+) {
   const refES = useRef<EventSource>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Data[]>([]);
 
   function open() {
     if (refES.current) {
@@ -25,15 +29,15 @@ export default function useEventSource(url: string, opts?: useEventSourceOpts) {
       setLoading(true);
     };
 
-    if (!opts?.map?.messsage || opts?.map?.messsage === "message") {
-      refES.current.onmessage = (event) => {
-        setData((prev) => [...prev, event.data]);
-      };
-    } else {
-      refES.current.addEventListener(opts.map.messsage, (event) => {
-        setData((prev) => [...prev, event.data]);
-      });
-    }
+    refES.current.addEventListener(
+      opts?.map?.messsage ?? "message",
+      (event) => {
+        setData((prev) => [
+          ...prev,
+          opts?.formater ? opts.formater(event.data) : event.data,
+        ]);
+      }
+    );
 
     refES.current.addEventListener(opts?.map?.end ?? "end", (event) => {
       opts?.onEnd?.();
