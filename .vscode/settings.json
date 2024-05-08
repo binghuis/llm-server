@@ -11,5 +11,8 @@
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
-  "python.analysis.extraPaths": []
+  "python.analysis.extraPaths": [],
+  "code-runner.executorMap": {
+    "python": "pdm run python -u"
+  }
 }
