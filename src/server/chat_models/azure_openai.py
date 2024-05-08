@@ -6,7 +6,6 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import AzureChatOpenAI
 from pydantic.v1.types import SecretStr
 
-
 from server.utils.format import format_event_data
 
 load_dotenv()

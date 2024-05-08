@@ -7,4 +7,4 @@ def format_event_data(
     if event == "add":
         return f"event: add\ndata: {data}\nid: {count}\n\n"
     else:
-        return f"event: end\nid: {count}\n\n"
+        return f"event: end\ndata: \nid: {count}\n\n"
