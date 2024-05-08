@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import AzureChatOpenAI
 from pydantic.v1.types import SecretStr
+
+
 from server.utils.format import format_event_data
 
 load_dotenv()
@@ -37,6 +39,10 @@ def completion(messages: list[BaseMessage]):
     yield format_event_data("end", count)
 
 
+# application/x-ndjson application/stream+json text/event-stream
+# https://stackoverflow.com/questions/52098863/whats-the-difference-between-text-event-stream-and-application-streamjson
+# https://github.com/spring-projects/spring-framework/issues/21283
+
 if __name__ == "__main__":
     messages = [
         HumanMessage(content="你好"),
@@ -45,7 +51,3 @@ if __name__ == "__main__":
 
     for chunk in completion(messages):
         print(chunk)
-
-# application/x-ndjson application/stream+json text/event-stream
-# https://stackoverflow.com/questions/52098863/whats-the-difference-between-text-event-stream-and-application-streamjson
-# https://github.com/spring-projects/spring-framework/issues/21283

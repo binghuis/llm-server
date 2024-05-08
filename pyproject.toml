@@ -8,6 +8,7 @@ dependencies = [
     "uvicorn[standard]>=0.29.0",
     "langchain-community>=0.0.34",
     "langchain-openai>=0.1.4",
+    "pydantic-settings>=2.2.1",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -17,7 +18,7 @@ license = { text = "MIT" }
 distribution = true
 
 [tool.pdm.scripts]
-dev = "uvicorn src.llm_server.main:app --reload"
+dev = "uvicorn src.server.main:app --reload"
 
 [build-system]
 requires = ["pdm-backend"]
