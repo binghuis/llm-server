@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from server.apis import routers
+from server.api import routers
 from server.core.config import settings
 
 app = FastAPI()
