@@ -15,7 +15,7 @@ api_key = SecretStr(str(getenv("AZURE_OPENAI_KEY")))
 api_version = str(getenv("AZURE_OPENAI_API_VERSION"))
 azure_deployment = getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
 
-chat = AzureChatOpenAI(
+llm = AzureChatOpenAI(
     azure_endpoint=azure_endpoint,
     api_key=api_key,
     api_version=api_version,
@@ -27,7 +27,7 @@ chat = AzureChatOpenAI(
 def completion(messages: list[BaseMessage]):
     count = 0
 
-    chunks = chat.stream(messages)
+    chunks = llm.stream(messages)
 
     for chunk in chunks:
         if chunk.content == "":

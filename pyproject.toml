@@ -9,8 +9,14 @@ dependencies = [
     "langchain-community>=0.0.34",
     "langchain-openai>=0.1.4",
     "pydantic-settings>=2.2.1",
+    "langchain-text-splitters>=0.0.1",
+    "langchain>=0.1.19",
+    "bs4>=0.0.2",
+    "langchain-chroma>=0.1.0",
+    "types-beautifulsoup4>=4.12.0.20240504",
+    "langchainhub>=0.1.15",
 ]
-requires-python = ">=3.12"
+requires-python = "<3.13,>=3.12"
 readme = "README.md"
 license = { text = "MIT" }
 

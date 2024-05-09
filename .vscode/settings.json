@@ -1,6 +1,7 @@
 {
   "editor.formatOnSave": true,
   "notebook.formatOnSave.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.codeActionsOnSave": {
@@ -14,5 +15,8 @@
   "python.analysis.extraPaths": [],
   "code-runner.executorMap": {
     "python": "pdm run python -u"
+  },
+  "[dotenv]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
   }
 }
