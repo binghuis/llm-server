@@ -1,6 +1,6 @@
 from os import getenv
 
-import bs4
+from bs4 import SoupStrainer
 from dotenv import load_dotenv
 from langchain import hub
 from langchain_chroma import Chroma
@@ -15,10 +15,13 @@ load_dotenv()
 langchain_api_key = getenv("LANGCHAIN_API_KEY")
 
 # 1. Indexing: Load
-bs4_strainer = bs4.SoupStrainer(class_=("post-title", "post-header", "post-content"))
+# 使用 bs4 从 HTML 中提取数据
+bs4_strainer = SoupStrainer(class_=("post-title", "post-header", "post-content"))
+# 创建网络资源加载器，解析器为 lxml，parse_only 参数控制文档部分解析
 loader = WebBaseLoader(
     web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
     bs_kwargs={"parse_only": bs4_strainer},
+    default_parser="lxml",
 )
 docs = loader.load()
 
@@ -41,7 +44,7 @@ vectorstore = Chroma.from_documents(documents=all_splits, embedding=azure_embedd
 
 # 4. Retrieval and Generation: Retrieve
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 6})
-retrieved_docs = retriever.invoke("What are the approaches to Task Decomposition?")
+retrieved_docs = retriever.invoke("你好?")
 print(len(retrieved_docs))
 print(retrieved_docs[0].page_content)
 
@@ -50,7 +53,7 @@ prompt = hub.pull("rlm/rag-prompt")
 example_messages = prompt.invoke(
     {"context": "filler context", "question": "filler question"}
 ).to_messages()
-example_messages
+
 print(example_messages[0].content)
 
 
