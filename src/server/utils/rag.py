@@ -6,7 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from server.chat_models import azure_embedding, azure_openai
+from server.chat_models import azure_openai_chat, azure_openai_embedding
 
 # 使用 bs4 从 HTML 中提取数据
 bs4_strainer = SoupStrainer(class_=("devsite-page-title", "devsite-article-body"))
@@ -27,7 +27,9 @@ text_splitter = RecursiveCharacterTextSplitter(
 all_splits = text_splitter.split_documents(docs)
 
 # 3. Indexing: Store
-vectorstore = Chroma.from_documents(documents=all_splits, embedding=azure_embedding.llm)
+vectorstore = Chroma.from_documents(
+    documents=all_splits, embedding=azure_openai_embedding.llm
+)
 
 # 4. Retrieval and Generation: Retrieve
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 6})
@@ -46,7 +48,7 @@ def format_docs(docs):
 rag_chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}
     | prompt
-    | azure_openai.llm
+    | azure_openai_chat.llm
     | StrOutputParser()
 )
 

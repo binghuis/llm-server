@@ -1,7 +1,7 @@
 [project]
 name = "server"
 version = "0.1.0"
-description = "Default template for PDM package"
+description = "LLM Server"
 authors = [{ name = "binghuis", email = "soongbinghui@gmail.com" }]
 dependencies = [
     "fastapi>=0.110.2",

@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 
-from server.chat_models.azure_openai import completion
+from server.chat_models.azure_openai_chat import completion
 
 chat_router = APIRouter(prefix="/sse", tags=["流式接口"])
 
