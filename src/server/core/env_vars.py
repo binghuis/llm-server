@@ -15,3 +15,10 @@ azure_openai_embedding_deployment_name = str(
 )
 
 langchain_api_key = str(getenv("LANGCHAIN_API_KEY"))
+
+azure_document_intelligence_api_key = SecretStr(
+    str(getenv("AZURE_DOCUMENT_INTELLIGENCE_API_KEY"))
+)
+azure_document_intelligence_endpoint = str(
+    getenv("AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT")
+)
