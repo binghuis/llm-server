@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:86d4695f8e535f96b33fc52337ffacafeb21ed949ab8288cb375846858e4d9b7"
+content_hash = "sha256:14fc41cc8554d70c50432559ac368d8011d2bbcfb02d97b0bfc729a3959420c5"
 
 [[package]]
 name = "aiohttp"
@@ -99,6 +99,38 @@ groups = ["default"]
 files = [
     {file = "attrs-23.2.0-py3-none-any.whl", hash = "sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1"},
     {file = "attrs-23.2.0.tar.gz", hash = "sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30"},
+]
+
+[[package]]
+name = "azure-ai-documentintelligence"
+version = "1.0.0b3"
+requires_python = ">=3.8"
+summary = "Microsoft Azure AI Document Intelligence Client Library for Python"
+groups = ["default"]
+dependencies = [
+    "azure-core>=1.30.0",
+    "isodate>=0.6.1",
+    "typing-extensions>=4.6.0",
+]
+files = [
+    {file = "azure-ai-documentintelligence-1.0.0b3.tar.gz", hash = "sha256:f59ccdda3d67a973d661181ccb4efd5e9d04996e8f2d3fb3031928b1605218c1"},
+    {file = "azure_ai_documentintelligence-1.0.0b3-py3-none-any.whl", hash = "sha256:401a1ef01ee79583210bc041e57e6b39db3a8759edd02dd14b6f52e2e0c5cfdc"},
+]
+
+[[package]]
+name = "azure-core"
+version = "1.30.1"
+requires_python = ">=3.7"
+summary = "Microsoft Azure Core Library for Python"
+groups = ["default"]
+dependencies = [
+    "requests>=2.21.0",
+    "six>=1.11.0",
+    "typing-extensions>=4.6.0",
+]
+files = [
+    {file = "azure-core-1.30.1.tar.gz", hash = "sha256:26273a254131f84269e8ea4464f3560c731f29c0c1f69ac99010845f239c1a8f"},
+    {file = "azure_core-1.30.1-py3-none-any.whl", hash = "sha256:7c5ee397e48f281ec4dd773d67a0a47a0962ed6fa833036057f9ea067f688e74"},
 ]
 
 [[package]]
@@ -709,6 +741,19 @@ groups = ["default"]
 files = [
     {file = "importlib_resources-6.4.0-py3-none-any.whl", hash = "sha256:50d10f043df931902d4194ea07ec57960f66a80449ff867bfe782b4c486ba78c"},
     {file = "importlib_resources-6.4.0.tar.gz", hash = "sha256:cdb2b453b8046ca4e3798eb1d84f3cce1446a0e8e7b5ef4efb600f19fc398145"},
+]
+
+[[package]]
+name = "isodate"
+version = "0.6.1"
+summary = "An ISO 8601 date/time/duration parser and formatter"
+groups = ["default"]
+dependencies = [
+    "six",
+]
+files = [
+    {file = "isodate-0.6.1-py2.py3-none-any.whl", hash = "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96"},
+    {file = "isodate-0.6.1.tar.gz", hash = "sha256:48c5881de7e8b0a0d648cb024c8062dc84e7b840ed81e864c7614fd3c127bde9"},
 ]
 
 [[package]]

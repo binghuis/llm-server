@@ -1,18 +1,15 @@
-from os import getenv
-
-from dotenv import load_dotenv
 from langchain_openai import AzureOpenAIEmbeddings
-from pydantic.v1.types import SecretStr
 
-load_dotenv()
-azure_endpoint = getenv("AZURE_OPENAI_ENDPOINT")
-api_key = SecretStr(str(getenv("AZURE_OPENAI_KEY")))
-api_version = str(getenv("AZURE_OPENAI_API_VERSION"))
-azure_deployment = getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME")
+from server.core.env_vars import (
+    azure_openai_api_key,
+    azure_openai_api_version,
+    azure_openai_embedding_deployment_name,
+    azure_openai_endpoint,
+)
 
 llm = AzureOpenAIEmbeddings(
-    azure_endpoint=azure_endpoint,
-    api_key=api_key,
-    api_version=api_version,
-    azure_deployment=azure_deployment,
+    azure_endpoint=azure_openai_endpoint,
+    api_key=azure_openai_api_key,
+    api_version=azure_openai_api_version,
+    azure_deployment=azure_openai_embedding_deployment_name,
 )

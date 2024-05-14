@@ -1,7 +1,4 @@
-from os import getenv
-
 from bs4 import SoupStrainer
-from dotenv import load_dotenv
 from langchain import hub
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader
@@ -11,10 +8,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from server.chat_models import azure_embedding, azure_openai
 
-load_dotenv()
-langchain_api_key = getenv("LANGCHAIN_API_KEY")
-
-# 1. Indexing: Load
 # 使用 bs4 从 HTML 中提取数据
 bs4_strainer = SoupStrainer(class_=("devsite-page-title", "devsite-article-body"))
 # 创建网络资源加载器，解析器为 lxml，parse_only 参数控制文档部分解析
