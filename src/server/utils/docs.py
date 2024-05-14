@@ -5,6 +5,7 @@ from langchain_community.document_loaders import AzureAIDocumentIntelligenceLoad
 
 from server.core.env_vars import (
     azure_document_intelligence_api_key,
+    azure_document_intelligence_api_version,
     azure_document_intelligence_endpoint,
 )
 
@@ -24,7 +25,7 @@ loader = AzureAIDocumentIntelligenceLoader(
     file_path=abs_cur_path,
     api_model="prebuilt-layout",
     mode="page",
-    api_version="2024-02-29-preview",
+    api_version=azure_document_intelligence_api_version,
 )
 
 

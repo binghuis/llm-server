@@ -20,3 +20,6 @@ azure_document_intelligence_api_key = str(getenv("AZURE_DOCUMENT_INTELLIGENCE_AP
 azure_document_intelligence_endpoint = str(
     getenv("AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT")
 )
+azure_document_intelligence_api_version = str(
+    getenv("AZURE_DOCUMENT_INTELLIGENCE_API_VERSION")
+)
