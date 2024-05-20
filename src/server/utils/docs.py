@@ -11,7 +11,6 @@ from server.core.env_vars import (
 
 cur_path = path.abspath(__file__)
 
-
 cur_dir = path.dirname(cur_path)
 
 abs_cur_path = path.join(cur_dir, "../docs/test.pdf")
