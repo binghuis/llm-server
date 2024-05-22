@@ -1,6 +1,5 @@
 import re
 from os import path
-from pprint import pprint
 from typing import List, Optional, Tuple
 
 from bs4 import BeautifulSoup
@@ -11,7 +10,7 @@ cur_path = path.abspath(__file__)
 
 cur_dir = path.dirname(cur_path)
 
-abs_cur_path = path.join(cur_dir, "../docs/test.pdf")
+abs_cur_path = path.join(cur_dir, "../docs/abc.pdf")
 
 loader = PDFMinerPDFasHTMLLoader(abs_cur_path)
 
@@ -20,6 +19,10 @@ data = loader.load()[0]
 soup = BeautifulSoup(data.page_content, "lxml")
 
 content = soup.find_all("div")
+
+
+with open("content.html", "w") as f:
+    f.write(data.page_content)
 
 cur_fs: Optional[int] = None
 cur_text: str = ""
@@ -79,4 +82,4 @@ for s in snippets:
     semantic_snippets.append(Document(page_content="", metadata=metadata))
     cur_idx += 1
 
-pprint(semantic_snippets)
+print(semantic_snippets)

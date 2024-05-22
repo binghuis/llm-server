@@ -19,5 +19,11 @@
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
-  "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5501,
+  "[hosts]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[ignore]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  }
 }
