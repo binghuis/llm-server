@@ -13,6 +13,7 @@
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
   "python.analysis.extraPaths": [],
+  "code-runner.clearPreviousOutput": true,
   "code-runner.executorMap": {
     "python": "pdm run python -u"
   },
