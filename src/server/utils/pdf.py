@@ -10,7 +10,7 @@ cur_path = path.abspath(__file__)
 
 cur_dir = path.dirname(cur_path)
 
-abs_cur_path = path.join(cur_dir, "../docs/abc.pdf")
+abs_cur_path = path.join(cur_dir, "../samples/abc.pdf")
 
 loader = PDFMinerPDFasHTMLLoader(abs_cur_path)
 

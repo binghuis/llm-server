@@ -13,7 +13,7 @@ cur_path = path.abspath(__file__)
 
 cur_dir = path.dirname(cur_path)
 
-abs_cur_path = path.join(cur_dir, "../docs/test.pdf")
+abs_cur_path = path.join(cur_dir, "../samples/test.pdf")
 
 # https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-layout?view=doc-intel-4.0.0
 

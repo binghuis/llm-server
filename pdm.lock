@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:e5d145eae39c687d5cf891ae7a76b135d33a2c8bdef8bf1c0b809e0ca116070e"
+content_hash = "sha256:2cf5a367bd952db8785384bac5bfa6f8f6399aea1a28125e02a542347a3ff81e"
 
 [[package]]
 name = "aiohttp"
@@ -2953,6 +2953,17 @@ groups = ["default"]
 files = [
     {file = "types-html5lib-1.1.11.20240228.tar.gz", hash = "sha256:22736b7299e605ec4ba539d48691e905fd0c61c3ea610acc59922232dc84cede"},
     {file = "types_html5lib-1.1.11.20240228-py3-none-any.whl", hash = "sha256:af5de0125cb0fe5667543b158db83849b22e25c0e36c9149836b095548bf1020"},
+]
+
+[[package]]
+name = "types-regex"
+version = "2024.5.15.20240519"
+requires_python = ">=3.8"
+summary = "Typing stubs for regex"
+groups = ["default"]
+files = [
+    {file = "types-regex-2024.5.15.20240519.tar.gz", hash = "sha256:ef3f594a95a95d6b9b5704a1facf3511a73e4731209ddb8868461db4c42dc12b"},
+    {file = "types_regex-2024.5.15.20240519-py3-none-any.whl", hash = "sha256:d5895079cc66f91ae8818aeef14e9337c492ceb87ad0ff3df8c1c04d418cb9dd"},
 ]
 
 [[package]]
