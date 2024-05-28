@@ -88,7 +88,7 @@ class PDFConverter:
         return any(range["y0"] <= y <= range["y1"] for range in tables_range)
 
     # 将表格转为 markdown
-    def table_to_markdown(self, table: List[List[Optional[str]]]) -> str:
+    def table2md(self, table: List[List[Optional[str]]]) -> str:
         if not table:
             return ""
         markdown_table = ""
@@ -107,16 +107,16 @@ class PDFConverter:
         return markdown_table
 
     # 目录转为字典
-    def toc_to_dict(self, toc):
+    def extract_toc(self, toc):
         toc_dict: Dict[int, List[Dict[str, str]]] = {}
         title_stack: List[str] = []
-        toc_title_block: str = ""
+        formatted_toc_block: str = ""
 
         for item in toc:
             page_num = item[2]
             page_index = page_num - 1
             title = self.clean_text(item[1])
-            toc_title_block = toc_title_block + f"{title}  {page_num}\n"
+            formatted_toc_block = f"{formatted_toc_block}{title}  {page_num}\n"
             level = item[0]
             while len(title_stack) >= level:
                 title_stack.pop()
@@ -132,14 +132,13 @@ class PDFConverter:
             else:
                 toc_dict[page_index] = [toc_item]
 
-        return toc_title_block, toc_dict
+        return formatted_toc_block, toc_dict
 
     def convert_pdf(self, pdf_path: str, output_path: str) -> str:
-        output: str = ""
+        result: str = ""
         doc = pymupdf.open(pdf_path)
         toc = doc.get_toc()
-
-        toc_title_block, toc_dict = self.toc_to_dict(toc)
+        formatted_toc_block, toc_dict = self.extract_toc(toc)
 
         # 从这页开始是正文内容
         body_content_start_page_index = toc[0][2] - 1
@@ -196,9 +195,9 @@ class PDFConverter:
                 ):
                     if not self.meet_toc:
                         block_text = (
-                            toc_title_block
+                            formatted_toc_block
                             if self.has_toc_flag
-                            else self.PREFFIX + toc_title_block
+                            else self.PREFFIX + formatted_toc_block
                         )
                         self.meet_toc = True
                     else:
@@ -212,9 +211,14 @@ class PDFConverter:
                     block_text = f"{self.PREFFIX}{block_text}"
                 # 将正文目录标题替换为全标题
                 if page_toc:
-                    for toc_item in page_toc:
-                        if toc_item["title"] == block_text:
-                            block_text = toc_item["full_title"]
+                    block_text = next(
+                        (
+                            toc_item["full_title"]
+                            for toc_item in page_toc
+                            if toc_item["title"] == block_text
+                        ),
+                        block_text,
+                    )
                 page_elements.append(
                     {"type": "text", "content": block_text, "y0": block_y0}
                 )
@@ -224,13 +228,13 @@ class PDFConverter:
             # 按元素类型拼接页面内容
             for elem in page_elements:
                 if elem["type"] == "text":
-                    output = output + elem["content"] + "\n"
+                    result = result + elem["content"] + "\n"
                 elif elem["type"] == "table":
                     markdown_table = elem["content"]
-                    output = output + self.table_to_markdown(markdown_table) + "\n"
+                    result = result + self.table2md(markdown_table) + "\n"
 
         with open(output_path, "w", encoding="utf-8") as f:
-            f.write(output)
+            f.write(result)
         return output_path
 
 
