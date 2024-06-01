@@ -3,6 +3,7 @@ from typing import Dict, List, Literal, Optional
 
 import pymupdf
 import regex as re
+
 from server.converter.pdf_pymupdf.type import Element, PagePaddingType, TableElement
 from server.converter.pdf_pymupdf.utils import clean_text, is_markdown
 
