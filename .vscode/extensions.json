@@ -1,7 +1,3 @@
 {
-  "recommendations": [
-    "charliermarsh.ruff",
-    "ms-python.isort",
-    "tamasfe.even-better-toml"
-  ]
+  "recommendations": ["charliermarsh.ruff", "tamasfe.even-better-toml"]
 }
