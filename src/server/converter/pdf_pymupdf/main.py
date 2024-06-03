@@ -3,9 +3,8 @@ from typing import Dict, List, Literal, Optional
 
 import pymupdf
 import regex as re
-
 from server.converter.pdf_pymupdf.type import Element, PagePaddingType, TableElement
-from server.converter.pdf_pymupdf.utils import clean_text, is_markdown
+from server.converter.pdf_pymupdf.utils import clean_text, is_markdown, is_same_line
 
 """
 功能：
@@ -16,8 +15,11 @@ from server.converter.pdf_pymupdf.utils import clean_text, is_markdown
 - 正文标题替换为完整层级标题 ✅
 - 格式化文本，删除多余空格 ✅
 
-pymupdf 问题：
-1. get_toc(simple=False) 
+目前脚本能力：
+- 扫描件识别可能是乱码。
+
+pymupdf 注意事项：
+1. get_toc(simple=False)
 目录页码是根据文档内容生成的，和你自己写的目录没有关系。
 2. table to_markdown() 会把 table 外文本提取为表头。
 3. find_tables() 很多表无法识别，目前没找到规律。
@@ -55,42 +57,42 @@ NEW_LINE_CHAR = "\n"
 PARAGRAPH_PREFFIX = "$$$"
 TITLE_PREFFIX = "###"
 MD_NEW_LINE_CHAR = "  \n"
-MD_PARAGRAPH_PREFFIX_PREFFIX = ""
+MD_PARAGRAPH_PREFFIX = ""
 TOC_FLAG = "$$TOC_FLAG$$"
 
 
 # 匹配目录块
 PATTERN_TOC_BLOCK = re.compile(
-    r"^(\p{Nd}*(?:.\p{Nd})*)\p{Z}*([\p{Han}\p{Latin}\p{Nd}\p{Z}\p{P}]*?)[-\.]{3,}([\p{Han}\p{Nd}！。]+?)$",
+    r"^(\p{Nd}*(?:\.\p{Nd})*)\p{Z}*([\p{Han}\p{Latin}\p{Nd}\p{Z}\p{P}]*?)[-…\.]{3,}([\p{Han}\p{Nd}\p{P}]+?)$",
     re.MULTILINE,
 )
 
 
 class PDFConverter:
     def __init__(self):
-        # 是否开始处理目录
-        self.has_meet_toc = False
         self.new_line_char = NEW_LINE_CHAR
         self.paragraph_preffix = PARAGRAPH_PREFFIX
         self.title_preffix = TITLE_PREFFIX
+        self.body_content_start_index = None
+        # 是否开始处理目录
+        self.has_meet_toc = False
         self.page_padding: PagePaddingType = None
-        self.toc = []
-        self.body_content_start_page_index = None
-        self.toc_dict = {}
+        self.toc_list = []
 
     # 判断块坐标是否在表格范围内
-    def is_block_in_table(
-        self, y0: float, y1: float, tables: List[TableElement]
-    ) -> bool:
-        return any(range["y0"] <= y0 and y1 <= range["y1"] for range in tables)
+    @staticmethod
+    def is_block_in_table(y0: float, y1: float, tables: List[TableElement]) -> bool:
+        return any(table["y0"] <= y0 and y1 <= table["y1"] for table in tables)
 
-    def find_img_by_block_number(self, images, block_numbers: List[int]):
+    @staticmethod
+    def find_img_by_block_number(images, block_numbers: List[int]):
         for block_number in block_numbers:
             if any(img["number"] == block_number for img in images):
                 return True
         return None
 
-    def compute_page_padding(self, page: pymupdf.Page) -> PagePaddingType:
+    @staticmethod
+    def compute_page_padding(page: pymupdf.Page) -> PagePaddingType:
         page_rect = page.rect
         bbox_list = page.get_bboxlog()
         if len(bbox_list) == 0:
@@ -118,9 +120,12 @@ class PDFConverter:
 
         return result
 
-    def table2md(self, table: List[List[Optional[str]]]) -> str:
-        if not table or len(table) < 2:
+    def table2md(self, table: List[List[Optional[str]]]) -> str | None:
+        if not table or len(table) <= 1:
             return ""
+        # 检查表格是否所有单元格都为空
+        if all(cell in [None, ""] for row in table for cell in row):
+            return None
         table_md = ""
         for row in table:
             table_md += (
@@ -148,17 +153,11 @@ class PDFConverter:
         ]
         if len(toc) == 0:
             return "", None
-        toc_dict: Dict[int, List[Dict[str, str]]] = {}
+        toc_list: List[Dict[str, str]] = []
         title_stack: List[str] = []
         formatted_toc_block: str = ""
 
         for item in formatted_toc:
-            page_num = int(item[2])
-            page_index = (
-                page_num + self.body_content_start_page_index
-                if self.body_content_start_page_index
-                else page_num
-            )
             title = clean_text(f"{item[0]} {item[1]}")
             formatted_toc_block = f"{formatted_toc_block}{self.paragraph_preffix}{title}{self.new_line_char}"
             level = len(item[0].split("."))
@@ -171,27 +170,22 @@ class PDFConverter:
                 "full_title": "-".join(title_stack),
             }
 
-            if toc_dict.get(page_index):
-                toc_dict[page_index].append(toc_item)
-            else:
-                toc_dict[page_index] = [toc_item]
-
-        return formatted_toc_block, toc_dict
+            toc_list.append(toc_item)
+        return formatted_toc_block, toc_list
 
     def convert_pdf(self, pdf_path: str, output_path: str) -> str:
         if is_markdown(output_path):
             self.new_line_char = MD_NEW_LINE_CHAR
-            self.paragraph_preffix = MD_PARAGRAPH_PREFFIX_PREFFIX
+            self.paragraph_preffix = MD_PARAGRAPH_PREFFIX
 
         doc = pymupdf.open(pdf_path)
-
+        toc = []
         result: str = ""
 
         for page in doc:
             self.page_padding = self.compute_page_padding(page)
             if not self.page_padding:
                 continue
-            page_index = page.number
             text_page = page.get_textpage()
             text_dict = text_page.extractDICT()
             imgs = page.get_image_info()
@@ -214,16 +208,10 @@ class PDFConverter:
             table_elements = [
                 element for element in page_elements if element["type"] == "table"
             ]
-            page_toc = (
-                self.toc_dict.get(page_index)
-                if (
-                    self.body_content_start_page_index
-                    and page_index >= self.body_content_start_page_index
-                )
-                else None
-            )
+            cur_page_has_toc = False
             # 处理页面每个块
             for block in text_dict["blocks"]:
+                is_toc = False
                 block_x0 = block["bbox"][0]
                 block_y0 = block["bbox"][1]
                 block_y1 = block["bbox"][3]
@@ -237,83 +225,89 @@ class PDFConverter:
                 if is_noise_text(block_size):
                     continue
                 # 拼接块内所有行文本
-                for line in block_lines:
-                    spans = line["spans"]
-                    block_text = clean_text(
-                        block_text + " ".join([span["text"] for span in spans])
+                for line_index, line_value in enumerate(block_lines):
+                    prev_line_y0 = (
+                        block_lines[line_index - 1]["bbox"][1]
+                        if line_index >= 1
+                        else None
                     )
-                if not block_text:
-                    continue
-                if (
-                    self.body_content_start_page_index
-                    and page_index < self.body_content_start_page_index
-                ):
-                    # 将正文目录标题替换为全标题
-                    if page_toc:
-                        block_text = next(
-                            (
-                                toc["full_title"]
-                                for toc in page_toc
-                                if toc["title"] == block_text
-                            ),
-                            block_text,
+
+                    spans = line_value["spans"]
+                    line_text = clean_text(" ".join([span["text"] for span in spans]))
+                    sep = (
+                        self.new_line_char
+                        if prev_line_y0
+                        and line_text
+                        and not is_same_line(
+                            line_value["bbox"][1],
+                            prev_line_y0,
                         )
-                else:
-                    if self.is_block_in_table(block_y0, block_y1, table_elements):
-                        continue
-
-                    if is_primary_text(block_size):
-                        if space_count > 1.8 and space_count < 2.5:
-                            block_text = f"{self.paragraph_preffix}{block_text}"
-                        if space_count > 3 and block_x0 <= page_mid:
-                            if self.find_img_by_block_number(
-                                imgs, [block_number - 1, block_number]
-                            ):
-                                continue
-                            else:
-                                block_text = f"{self.title_preffix}{block_text}"
-
+                        else ""
+                    )
+                    block_text = block_text + sep + line_text
+                if not block_text or block_text.isspace():
+                    continue
+                if block_x0 > page_mid:
+                    continue
+                if self.is_block_in_table(block_y0, block_y1, table_elements):
+                    continue
+                if not self.body_content_start_index:
+                    toc_match = PATTERN_TOC_BLOCK.findall(block_text)
+                    if toc_match:
+                        cur_page_has_toc = True
+                        toc.extend(toc_match)
+                        if not self.has_meet_toc:
+                            block_text = "$$TOC_FLAG$$"
+                            self.has_meet_toc = True
+                        else:
+                            continue
+                # 将正文目录标题替换为全标题
+                if len(self.toc_list) > 0:
+                    for toc_item in self.toc_list:
+                        if toc_item["title"] == block_text:
+                            block_text = toc_item["full_title"]
+                            is_toc = True
+                if is_primary_text(block_size) and not is_toc:
+                    if 1.8 < space_count < 2.5:
+                        block_text = f"{self.paragraph_preffix}{block_text}"
+                    if space_count > 3 and block_x0 <= page_mid:
+                        if self.find_img_by_block_number(
+                            imgs, [block_number - 1, block_number]
+                        ):
+                            continue
+                        else:
+                            block_text = f"{self.title_preffix}{block_text}"
                 page_elements.append(
                     {"type": "text", "content": block_text, "y0": block_y0}
                 )
+
+            if self.has_meet_toc and not self.body_content_start_index:
+                formatted_toc_block, self.toc_list = self.process_toc(toc)
+                if not cur_page_has_toc:
+                    self.body_content_start_index = page.number
+                    result = result.replace(TOC_FLAG, formatted_toc_block)
             # 页面元素按 y0 排序
-            page_elements.sort(key=lambda elem: elem["y0"])
-            cur_page_has_toc = False
+            page_elements.sort(key=lambda el: el["y0"])
             for elem in page_elements:
                 if elem["type"] == "text":
-                    toc_match = (
-                        PATTERN_TOC_BLOCK.match(elem["content"])
-                        if not self.body_content_start_page_index
-                        else None
-                    )
-                    if toc_match:
-                        cur_page_has_toc = True
-                        self.toc.append(toc_match.groups())
-                        if not self.has_meet_toc:
-                            result = result + "$$TOC_FLAG$$" + self.new_line_char
-                            self.has_meet_toc = True
-                    else:
-                        result = result + elem["content"] + self.new_line_char
+                    result = result + elem["content"] + self.new_line_char
                 elif elem["type"] == "table":
                     markdown_table = self.table2md(elem["content"])
-                    result = result + markdown_table + self.new_line_char
-            if (
-                self.has_meet_toc
-                and not cur_page_has_toc
-                and not self.body_content_start_page_index
-            ):
-                self.body_content_start_page_index = page_index
-                formatted_toc_block, self.toc_dict = self.process_toc(self.toc)
-                result = result.replace(TOC_FLAG, formatted_toc_block)
+                    result = (
+                        result + markdown_table
+                        if markdown_table
+                        else "" + self.new_line_char
+                    )
+
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(result)
         return output_path
 
 
 if __name__ == "__main__":
+    pdf_converter = PDFConverter()
     cur_path = path.abspath(__file__)
     cur_dir = path.dirname(cur_path)
-    input = path.join(cur_dir, "../../samples/sample1.pdf")
-    output = path.join(cur_dir, "../../samples/output/sample1.txt")
-    pdf_converter = PDFConverter()
+    input = path.join(cur_dir, "../../samples/sample.pdf")
+    output = path.join(cur_dir, "../../samples/result/sample.txt")
     pdf_converter.convert_pdf(input, output)

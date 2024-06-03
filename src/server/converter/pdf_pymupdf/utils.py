@@ -1,11 +1,12 @@
 from functools import partial
+from pathlib import Path
 from typing import List
 
 import regex as re
 
 
-def has_suffix(file_path, suffix):
-    return file_path.lower().endswith(suffix.lower())
+def has_suffix(file_path: Path, suffix):
+    return str(file_path).lower().endswith(suffix.lower())
 
 
 is_pdf = partial(has_suffix, suffix=".pdf")
@@ -51,3 +52,7 @@ def flags_decomposer(flags):
     if flags & 2**4:
         ret.append("bold")
     return ", ".join(ret)
+
+
+def is_same_line(y0: float, y1: float, tolerance=4):
+    return abs(y0 - y1) < tolerance
