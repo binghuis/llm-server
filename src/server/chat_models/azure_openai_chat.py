@@ -1,6 +1,8 @@
 import json
 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import AzureChatOpenAI
 
 from server.core.env_vars import (
@@ -11,7 +13,7 @@ from server.core.env_vars import (
 )
 from server.utils.format import format_event_data
 
-llm = AzureChatOpenAI(
+model = AzureChatOpenAI(
     azure_endpoint=azure_openai_endpoint,
     api_key=azure_openai_api_key,
     api_version=azure_openai_api_version,
@@ -23,7 +25,7 @@ llm = AzureChatOpenAI(
 def completion(messages: list[BaseMessage]):
     count = 0
 
-    chunks = llm.stream(messages)
+    chunks = model.stream(messages)
 
     for chunk in chunks:
         if chunk.content == "":
@@ -39,10 +41,16 @@ def completion(messages: list[BaseMessage]):
 # https://github.com/spring-projects/spring-framework/issues/21283
 
 if __name__ == "__main__":
-    messages = [
-        HumanMessage(content="你好"),
-        SystemMessage(content="我是一个聊天机器人，我可以回答你的问题"),
-    ]
-
-    for chunk in completion(messages):
-        print(chunk)
+    system_template = "Translate the following into {language}:"
+    prompt_template = ChatPromptTemplate.from_messages(
+        [("system", system_template), ("user", "{text}")]
+    )
+    parser = StrOutputParser()
+    chain = prompt_template | model | parser
+    print(chain.invoke({"language": "chinese", "text": "hi"}))
+    # messages = [
+    #     HumanMessage(content="你好"),
+    #     SystemMessage(content="我是一个聊天机器人，我可以回答你的问题"),
+    # ]
+    # for chunk in completion(messages):
+    #     print(chunk)
