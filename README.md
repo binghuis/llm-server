@@ -6,3 +6,5 @@
 > [It's 2023, how do you choose between "MySQL" and "Postgres"?](https://news.ycombinator.com/item?id=35906604)
 
 SQL client：[Beekeeper Studio](https://github.com/beekeeper-studio/beekeeper-studio/releases)
+
+`pdm update -u`
