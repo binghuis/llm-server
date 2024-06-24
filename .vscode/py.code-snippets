@@ -1,6 +1,6 @@
 {
   "Main Block": {
-    "prefix": "main",
+    "prefix": "__main",
     "body": ["if __name__ == \"__main__\":", "\tpass"],
     "description": "Main block"
   }
