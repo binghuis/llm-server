@@ -8,3 +8,5 @@
 SQL client：[Beekeeper Studio](https://github.com/beekeeper-studio/beekeeper-studio/releases)
 
 `pdm update -u`
+
+pdm config pypi.url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
