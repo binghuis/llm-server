@@ -41,7 +41,7 @@ def completion(messages: list[BaseMessage]):
 # https://github.com/spring-projects/spring-framework/issues/21283
 
 if __name__ == "__main__":
-    system_template = "Translate the following into {language}:"
+    system_template = "把以下文本翻译成 {language}："
     prompt_template = ChatPromptTemplate.from_messages(
         [("system", system_template), ("user", "{text}")]
     )
